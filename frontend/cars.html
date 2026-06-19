@@ -6,34 +6,36 @@
 </head>
 <body>
 
-<h1>Available Cars</h1>
+<nav>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About</a></li>
+<li><a href="login.html">Login</a></li>
+<li><a href="cars.html">Cars</a></li>
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="bookings.html">Bookings</a></li>
+</ul>
+</nav>
 
-<table>
-<tr>
-<th>ID</th>
-<th>Car Name</th>
-<th>Model</th>
-<th>Price Per Day</th>
-<th>Status</th>
-</tr>
+<div class="container">
 
-<tr>
-<td>1</td>
-<td>Toyota Corolla</td>
-<td>2022</td>
-<td>5000</td>
-<td>Available</td>
-</tr>
+<h2>Available Cars</h2>
 
-<tr>
-<td>2</td>
-<td>Honda Civic</td>
-<td>2023</td>
-<td>6000</td>
-<td>Available</td>
-</tr>
+<div id="carsContainer">
 
-</table>
+</div>
+
+</div>
+
+<footer>
+OSSD Final Semester Project
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+loadCars();
+</script>
 
 </body>
 </html>

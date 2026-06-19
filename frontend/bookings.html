@@ -6,33 +6,49 @@
 </head>
 <body>
 
-<h1>My Bookings</h1>
+<nav>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About</a></li>
+<li><a href="login.html">Login</a></li>
+<li><a href="cars.html">Cars</a></li>
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="bookings.html">Bookings</a></li>
+</ul>
+</nav>
+
+<div class="container">
+
+<h2>My Bookings</h2>
 
 <table>
-    <tr>
-        <th>Booking ID</th>
-        <th>Car Name</th>
-        <th>Booking Date</th>
-        <th>Return Date</th>
-        <th>Status</th>
-    </tr>
 
-    <tr>
-        <td>1</td>
-        <td>Toyota Corolla</td>
-        <td>2025-06-20</td>
-        <td>2025-06-25</td>
-        <td>Active</td>
-    </tr>
+<thead>
+<tr>
+<th>ID</th>
+<th>User ID</th>
+<th>Car ID</th>
+<th>Status</th>
+</tr>
+</thead>
 
-    <tr>
-        <td>2</td>
-        <td>Honda Civic</td>
-        <td>2025-07-01</td>
-        <td>2025-07-05</td>
-        <td>Completed</td>
-    </tr>
+<tbody id="bookingsTable">
+
+</tbody>
+
 </table>
+
+</div>
+
+<footer>
+OSSD Final Semester Project
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+loadBookings();
+</script>
 
 </body>
 </html>

@@ -6,13 +6,42 @@
 </head>
 <body>
 
-<h1>Dashboard</h1>
+<nav>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About</a></li>
+<li><a href="login.html">Login</a></li>
+<li><a href="cars.html">Cars</a></li>
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="bookings.html">Bookings</a></li>
+</ul>
+</nav>
 
-<h3>Total Users: 10</h3>
+<div class="container">
 
-<h3>Total Cars: 20</h3>
+<div class="card">
 
-<h3>Total Bookings: 5</h3>
+<h2>Dashboard Statistics</h2>
+
+<p id="totalCars"></p>
+
+<p id="totalBookings"></p>
+
+<p id="availableCars"></p>
+
+</div>
+
+</div>
+
+<footer>
+OSSD Final Semester Project
+</footer>
+
+<script src="script.js"></script>
+
+<script>
+loadDashboard();
+</script>
 
 </body>
 </html>

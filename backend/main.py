@@ -1,106 +1,309 @@
-from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from database import engine, get_db
+from models import Base, User, Car, Booking
+from schemas import UserCreate, UserLogin, CarCreate, BookingCreate
 
-app = FastAPI()
+app = FastAPI(title="Car Rental Management System")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+Base.metadata.create_all(bind=engine)
 
-# HOME
 
 @app.get("/")
 def home():
-    return {"message": "Car Rental Management System"}
+    return {"message": "Car Rental Management System API Running"}
 
-# REGISTER
 
+# REGISTER USER
 @app.post("/register")
-def register():
-    return {"message": "User Registered"}
+def register(user: UserCreate, db: Session = Depends(get_db)):
 
-# LOGIN
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
 
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already exists"
+        )
+
+    new_user = User(
+        name=user.name,
+        email=user.email,
+        password=user.password
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"message": "User Registered Successfully"}
+
+
+# LOGIN USER
 @app.post("/login")
-def login():
+def login(user: UserLogin, db: Session = Depends(get_db)):
+
+    db_user = db.query(User).filter(
+        User.email == user.email,
+        User.password == user.password
+    ).first()
+
+    if not db_user:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid Credentials"
+        )
+
     return {"message": "Login Successful"}
 
-# GET ALL CARS
-
+# VIEW ALL CARS
 @app.get("/cars")
-def get_cars():
-    return {
-        "cars":[
-            {
-                "id":1,
-                "name":"Toyota Corolla",
-                "model":"2022",
-                "price":5000
-            }
-        ]
-    }
+def get_cars(db: Session = Depends(get_db)):
+    return db.query(Car).all()
 
-# GET SINGLE CAR
 
-@app.get("/cars/{id}")
-def get_car(id:int):
-    return {"car_id":id}
+# VIEW SINGLE CAR
+@app.get("/cars/{car_id}")
+def get_car(car_id: int, db: Session = Depends(get_db)):
+
+    car = db.query(Car).filter(
+        Car.id == car_id
+    ).first()
+
+    if not car:
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found"
+        )
+
+    return car
+
 
 # ADD CAR
-
 @app.post("/cars")
-def add_car():
-    return {"message":"Car Added"}
+def add_car(car: CarCreate,
+            db: Session = Depends(get_db)):
+
+    new_car = Car(
+        car_name=car.car_name,
+        model=car.model,
+        price_per_day=car.price_per_day,
+        status=car.status
+    )
+
+    db.add(new_car)
+    db.commit()
+    db.refresh(new_car)
+
+    return {
+        "message": "Car Added Successfully"
+    }
+
 
 # UPDATE CAR
+@app.put("/cars/{car_id}")
+def update_car(
+    car_id: int,
+    updated_car: CarCreate,
+    db: Session = Depends(get_db)
+):
 
-@app.put("/cars/{id}")
-def update_car(id:int):
-    return {"message":f"Car {id} Updated"}
+    car = db.query(Car).filter(
+        Car.id == car_id
+    ).first()
+
+    if not car:
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found"
+        )
+
+    car.car_name = updated_car.car_name
+    car.model = updated_car.model
+    car.price_per_day = updated_car.price_per_day
+    car.status = updated_car.status
+
+    db.commit()
+
+    return {
+        "message": "Car Updated Successfully"
+    }
+
 
 # DELETE CAR
+@app.delete("/cars/{car_id}")
+def delete_car(
+    car_id: int,
+    db: Session = Depends(get_db)
+):
 
-@app.delete("/cars/{id}")
-def delete_car(id:int):
-    return {"message":f"Car {id} Deleted"}
+    car = db.query(Car).filter(
+        Car.id == car_id
+    ).first()
+
+    if not car:
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found"
+        )
+
+    db.delete(car)
+    db.commit()
+
+    return {
+        "message": "Car Deleted Successfully"
+    }
 
 # CREATE BOOKING
-
 @app.post("/bookings")
-def create_booking():
-    return {"message":"Booking Created"}
+def create_booking(
+    booking: BookingCreate,
+    db: Session = Depends(get_db)
+):
 
-# GET ALL BOOKINGS
+    car = db.query(Car).filter(
+        Car.id == booking.car_id
+    ).first()
 
+    if not car:
+        raise HTTPException(
+            status_code=404,
+            detail="Car not found"
+        )
+
+    new_booking = Booking(
+        user_id=booking.user_id,
+        car_id=booking.car_id,
+        booking_date=booking.booking_date,
+        return_date=booking.return_date,
+        status="Active"
+    )
+
+    db.add(new_booking)
+
+    car.status = "Booked"
+
+    db.commit()
+    db.refresh(new_booking)
+
+    return {
+        "message": "Booking Created Successfully"
+    }
+
+
+# VIEW ALL BOOKINGS
 @app.get("/bookings")
-def get_bookings():
-    return {"message":"All Bookings"}
+def get_bookings(
+    db: Session = Depends(get_db)
+):
+    return db.query(Booking).all()
 
-# GET SINGLE BOOKING
 
-@app.get("/bookings/{id}")
-def get_booking(id:int):
-    return {"booking_id":id}
+# VIEW SINGLE BOOKING
+@app.get("/bookings/{booking_id}")
+def get_booking(
+    booking_id: int,
+    db: Session = Depends(get_db)
+):
 
-# RETURN BOOKING
+    booking = db.query(Booking).filter(
+        Booking.id == booking_id
+    ).first()
 
-@app.put("/bookings/{id}/return")
-def return_booking(id:int):
-    return {"message":f"Booking {id} Returned"}
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found"
+        )
+
+    return booking
+
 
 # CANCEL BOOKING
+@app.put("/bookings/{booking_id}/cancel")
+def cancel_booking(
+    booking_id: int,
+    db: Session = Depends(get_db)
+):
 
-@app.put("/bookings/{id}/cancel")
-def cancel_booking(id:int):
-    return {"message":f"Booking {id} Cancelled"}
+    booking = db.query(Booking).filter(
+        Booking.id == booking_id
+    ).first()
 
-# DELETE BOOKING
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found"
+        )
 
-@app.delete("/bookings/{id}")
-def delete_booking(id:int):
-    return {"message":f"Booking {id} Deleted"}
+    booking.status = "Cancelled"
 
-# DASHBOARD
+    db.commit()
 
-@app.get("/dashboard")
-def dashboard():
     return {
-        "total_users":10,
-        "total_cars":20,
-        "total_bookings":5
+        "message": "Booking Cancelled"
+    }
+
+
+# RETURN CAR
+@app.put("/bookings/{booking_id}/return")
+def return_car(
+    booking_id: int,
+    db: Session = Depends(get_db)
+):
+
+    booking = db.query(Booking).filter(
+        Booking.id == booking_id
+    ).first()
+
+    if not booking:
+        raise HTTPException(
+            status_code=404,
+            detail="Booking not found"
+        )
+
+    booking.status = "Returned"
+
+    car = db.query(Car).filter(
+        Car.id == booking.car_id
+    ).first()
+
+    if car:
+        car.status = "Available"
+
+    db.commit()
+
+    return {
+        "message": "Car Returned Successfully"
+    }
+
+# DASHBOARD STATISTICS
+@app.get("/dashboard")
+def dashboard_stats(
+    db: Session = Depends(get_db)
+):
+
+    total_cars = db.query(Car).count()
+
+    total_bookings = db.query(
+        Booking
+    ).count()
+
+    available_cars = db.query(Car).filter(
+        Car.status == "Available"
+    ).count()
+
+    return {
+        "total_cars": total_cars,
+        "total_bookings": total_bookings,
+        "available_cars": available_cars
     }

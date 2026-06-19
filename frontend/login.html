@@ -6,13 +6,56 @@
 </head>
 <body>
 
-<h1>Login</h1>
+<nav>
+<ul>
+<li><a href="index.html">Home</a></li>
+<li><a href="about.html">About</a></li>
+<li><a href="login.html">Login</a></li>
+<li><a href="cars.html">Cars</a></li>
+<li><a href="dashboard.html">Dashboard</a></li>
+<li><a href="bookings.html">Bookings</a></li>
+</ul>
+</nav>
 
-<input id="email" placeholder="Email">
+<div class="container">
 
-<input id="password" placeholder="Password">
+<div class="card">
 
-<button>Login</button>
+<h2>User Registration</h2>
+
+<input type="text" id="regName" placeholder="Name">
+
+<input type="email" id="regEmail" placeholder="Email">
+
+<input type="password" id="regPassword" placeholder="Password">
+
+<button class="btn" onclick="registerUser()">
+Register
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>User Login</h2>
+
+<input type="email" id="loginEmail" placeholder="Email">
+
+<input type="password" id="loginPassword" placeholder="Password">
+
+<button class="btn" onclick="loginUser()">
+Login
+</button>
+
+</div>
+
+</div>
+
+<footer>
+OSSD Final Semester Project
+</footer>
+
+<script src="script.js"></script>
 
 </body>
 </html>
