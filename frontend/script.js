@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://car-rental-management-system-production-1c66.up.railway.app";
 
 
 async function registerUser() {
